@@ -134,52 +134,32 @@
             color: #6f8a67;
             margin-top: 2rem;
         }
-        /* Giscus 评论框样式适配 */
-        .giscus {
-            margin-top: 1rem;
-        }
         @media (max-width: 650px) {
             .container { padding: 1.2rem; }
             h1 { font-size: 1.5rem; }
         }
     </style>
-    <!-- 提前加载 Giscus 样式 -->
-    <script src="https://giscus.app/client.js"
-        data-repo="caojun1860/Workflow-temple"
-        data-repo-id="R_kgDOSyE9vQ"
-        data-category="Announcements"
-        data-category-id="DIC_kwDOSyE9vc4C-lF4"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="preferred_color_scheme"
-        data-lang="zh-CN"
-        crossorigin="anonymous"
-        async>
-</script>
 </head>
 <body>
 <div class="container" id="detailContainer">
     <a href="index.html" class="back-link">← 返回任务蓝图</a>
     <div id="content">
-        <!-- 动态加载子任务内容 -->
         <div style="text-align:center; padding: 2rem;">加载子任务信息...</div>
     </div>
 
-    <!-- 留言讨论板块（独立于子任务动态内容，全局出现） -->
+    <!-- 留言讨论板块：使用 Utterances (基于 GitHub Issues) -->
     <div class="section" id="commentSection">
         <h3>💬 留言讨论</h3>
         <div class="comment-box">
-            <div id="giscus-comments"></div>
+            <div id="comments-container"></div>
             <div class="upload-note" style="margin-top:0.8rem;">
-                💡 提示：留言需要 GitHub 账号。如果你没有，也可以通过下方“上传附件”区域分享文件或意见。
+                💡 提示：留言需要 GitHub 账号。评论区基于 GitHub Issues，首次加载请稍候。<br>
+                ⚠️ 请确保本页面对应的 GitHub 仓库（caojun1860/Workflow-temple）已启用 Issues 且为公开仓库。
             </div>
         </div>
     </div>
 
-    <!-- 上传文件板块（模拟开放上传，实际跳转第三方） -->
+    <!-- 上传文件板块（临时上传 + 本地记录） -->
     <div class="section" id="uploadSection">
         <h3>📤 上传文件 & 共享附件</h3>
         <div class="upload-box">
@@ -189,15 +169,12 @@
                 🔗 上传后，将生成的链接粘贴到下方“已上传附件列表”中，方便他人下载。<br>
                 ⚠️ 临时文件可能失效，建议使用 GitHub Releases 或云盘长期存储。
             </div>
-            <!-- 手动记录已上传的附件列表（存储在浏览器本地） -->
             <div style="margin-top: 1.2rem;">
                 <label style="font-weight:500;">📋 记录新附件链接：</label>
                 <input type="text" id="newUploadLink" placeholder="粘贴文件链接" style="width: 70%; padding: 0.4rem; margin: 0.5rem 0; border-radius: 30px; border: 1px solid #cbdbbf;">
                 <input type="text" id="newUploadName" placeholder="附件名称（可选）" style="width: 70%; padding: 0.4rem; margin: 0.5rem 0; border-radius: 30px; border: 1px solid #cbdbbf;">
                 <button onclick="addUploadRecord()" style="background: #5c9e5c; color: white; border: none; padding: 0.4rem 1rem; border-radius: 30px; cursor: pointer;">添加记录</button>
-                <ul id="uploadRecordList" class="upload-list" style="margin-top: 1rem;">
-                    <!-- 动态显示用户添加的附件记录 -->
-                </ul>
+                <ul id="uploadRecordList" class="upload-list" style="margin-top: 1rem;"></ul>
                 <div class="upload-note">✅ 所有记录仅保存在你当前浏览器中，清除缓存会丢失。建议将重要链接直接附在留言区。</div>
             </div>
         </div>
@@ -205,49 +182,64 @@
 
     <div class="footer-note">
         📎 所有子任务固定附件统一存放在 <code>attachments/</code> 目录下（见上方“附件链接”）。<br>
-        💬 留言板块基于 Giscus，需要 GitHub 账号参与讨论。
+        💬 留言板块基于 <a href="https://github.com/utterance/utterances" target="_blank">Utterances</a>，需要 GitHub 账号参与讨论。
     </div>
 </div>
 
 <script>
-    // ======================= 子任务数据库（原完整数据，此处略写，实际请替换为完整版） =======================
-    // 为了演示，这里只保留部分示例，实际使用时请将之前 detail.html 中的 subtaskDatabase 完整复制过来。
-    // 为节省篇幅，此处仅展示核心结构；您在实际部署时请将之前完整的 subtaskDatabase 对象粘贴到下方。
+    // ======================= 完整子任务数据库 (10 个主任务 x 4 个子任务) =======================
     const subtaskDatabase = {
-        // 示例：任务 1_1
-        "1_1": { name:"证明 ϑ(x) = O(x)", desc:"通过初等组合估计，验证∑_{p≤x} log p ≤ 2x log 2。", conclusion:"ϑ(x) = O(x)，即存在常数C使ϑ(x) ≤ Cx。", attachments:["chebyshev_bound.pdf","notes_ϑ(x).lean"] },
-        // 请复制您之前完整的 subtaskDatabase 内容（包含 1_1 到 10_4）
-        // 为了代码可读，此处仅保留一个示例，实际运行时请替换为完整对象。
+        // 次任务 1
+        "1_1": { name: "证明 ϑ(x) = O(x)", desc: "通过初等组合估计，验证∑_{p≤x} log p ≤ 2x log 2。", conclusion: "ϑ(x) = O(x)，即存在常数C使ϑ(x) ≤ Cx。", attachments: ["chebyshev_bound.pdf", "notes_ϑ(x).lean"] },
+        "1_2": { name: "证明 ψ(x) = ϑ(x) + O(√x)", desc: "将素数幂贡献转换为ϑ的误差，建立ψ与ϑ的关系。", conclusion: "ψ(x) = ϑ(x) + O(√x)，主项与次项分离。", attachments: ["psi_theta_relation.pdf"] },
+        "1_3": { name: "建立上下界 c₁x ≤ ψ(x) ≤ c₂x", desc: "通过初等筛法导出线性界。", conclusion: "存在 c₁=log2/2，c₂=log2 使 c₁x ≤ ψ(x) ≤ c₂x。", attachments: ["chebyshev_bounds.lean"] },
+        "1_4": { name: "导出 π(x) = Ω(x/log x) 和 π(x) = O(x/log x)", desc: "利用ϑ与π的关系得到素数计数粗略阶。", conclusion: "π(x) 与 x/log x 同阶，是素数定理的第一步。", attachments: ["prime_theta_relation.pdf"] },
+        // 次任务 2
+        "2_1": { name: "定义 ζ(s) 并证明绝对收敛", desc: "在Re(s)>1上定义级数，证明一致收敛。", conclusion: "ζ(s)在右半平面解析。", attachments: ["zeta_abs_converge.lean"] },
+        "2_2": { name: "证明 Euler 乘积公式", desc: "算术基本定理导出乘积表示。", conclusion: "ζ(s)=Π(1-p^{-s})^{-1}。", attachments: ["euler_product.pdf"] },
+        "2_3": { name: "解析延拓到 Re(s)>0 并陈述函数方程", desc: "利用积分表示或函数方程延拓。", conclusion: "ζ(s)可亚纯延拓到全平面，仅有s=1极点。", attachments: ["zeta_analytic.lean"] },
+        "2_4": { name: "证明 s=1 处一阶极点留数为1", desc: "计算留数。", conclusion: "Res_{s=1} ζ(s)=1。", attachments: ["residue_one.pdf"] },
+        // 次任务 3
+        "3_1": { name: "定义 Von Mangoldt 函数 Λ(n) 及 ψ(x)", desc: "ψ(x)=∑_{n≤x}Λ(n)。", conclusion: "ψ(x)是素数定理的核心函数。", attachments: ["vonMangoldt_def.pdf"] },
+        "3_2": { name: "证明 -ζ'(s)/ζ(s) = Σ Λ(n)/n^s", desc: "对数导数与素数幂关系。", conclusion: "生成函数联系。", attachments: ["log_derivative.lean"] },
+        "3_3": { name: "应用 Perron 公式表达 ψ(x)", desc: "围道积分表示。", conclusion: "ψ(x) = 1/(2πi)∫( -ζ'/ζ) x^s /s ds。", attachments: ["perron_formula.pdf"] },
+        "3_4": { name: "截断积分并给出误差项估计", desc: "将无穷积分截断到有限高度。", conclusion: "误差项可控制为O(x/T)加上其他项。", attachments: ["truncation_error.pdf"] },
+        // 次任务 4
+        "4_1": { name: "证明 ζ(s) ≠ 0 对 Re(s) ≥ 1", desc: "经典非零区域证明。", conclusion: "ζ(1+it)≠0。", attachments: ["no_zero_on_line.lean"] },
+        "4_2": { name: "更精细的零点自由区域", desc: "Vinogradov–Korobov型估计。", conclusion: "存在c>0使得在Re(s)>1-c/log|t|内无零点。", attachments: ["zero_free_region.pdf"] },
+        "4_3": { name: "导出 -ζ'(s)/ζ(s) 的解析控制", desc: "利用区域估计对数导数。", conclusion: "在区域内有界增长。", attachments: ["logderiv_bounds.pdf"] },
+        "4_4": { name: "积分误差得到 ψ(x) = x + O(x e^{-c√log x})", desc: "移动围道结合零点区域。", conclusion: "第一个非平凡误差项。", attachments: ["psi_asymptotic.lean"] },
+        // 次任务 5
+        "5_1": { name: "积分路径左移至 Re(s)=1-δ(x)", desc: "选择合适的δ(x)。", conclusion: "主项提取。", attachments: ["contour_move.pdf"] },
+        "5_2": { name: "计算 s=1 处留数贡献 x", desc: "留数定理直接得x。", conclusion: "主项为x。", attachments: ["residue_calc.pdf"] },
+        "5_3": { name: "估计水平和垂直积分界", desc: "利用ζ(s)在零点自由区域的上界。", conclusion: "积分被控制。", attachments: ["integral_estimate.pdf"] },
+        "5_4": { name: "从 ψ(x) 导出 π(x) 渐近式", desc: "Abel求和公式。", conclusion: "π(x) ~ x/log x。", attachments: ["psi_to_pi.pdf"] },
+        // 次任务 6
+        "6_1": { name: "引入更精细的零点自由区域", desc: "改进区域形状。", conclusion: "为Walfisz估计做准备。", attachments: ["refined_region.pdf"] },
+        "6_2": { name: "证明 ψ(x) = x + O(x exp(-c (log x)^{3/5}/(log log x)^{1/5}))", desc: "Walfisz误差。", conclusion: "更优的误差项。", attachments: ["walfisz_psi.pdf"] },
+        "6_3": { name: "得到相应的素数定理误差项", desc: "误差传递到π(x)。", conclusion: "π(x) = li(x) + O(x exp(-c (log x)^{3/5}/(log log x)^{1/5}))。", attachments: ["walfisz_pi.pdf"] },
+        "6_4": { name: "对比不同误差阶的历史结果", desc: "总结已知最优估计。", conclusion: "RH下误差可降至O(√x log x)。", attachments: ["error_compare.pdf"] },
+        // 次任务 7
+        "7_1": { name: "引入 Selberg 公式", desc: "初等核心恒等式。", conclusion: "∑_{p≤x} log^2 p + ∑_{pq≤x} log p log q = 2x log x + O(x)。", attachments: ["selberg_formula.pdf"] },
+        "7_2": { name: "推导 ΣΛ(n)log n = x log x - x + O(log x)", desc: "加权和。", conclusion: "为初等证明铺垫。", attachments: ["weighted_sum.pdf"] },
+        "7_3": { name: "利用 Selberg 公式得到 ψ(x) = x + o(x)", desc: "完成初等证明。", conclusion: "素数定理的弱形式。", attachments: ["elementary_psi.pdf"] },
+        "7_4": { name: "总结初等证明与解析证明的异同", desc: "方法论比较。", conclusion: "初等证明虽避免复变函数，但误差较弱。", attachments: ["proof_comparison.pdf"] },
+        // 次任务 8
+        "8_1": { name: "编写代码计算 π(x) 与 x/log x 的比值", desc: "实证检验。", conclusion: "相对误差趋于0。", attachments: ["code_pi.py"] },
+        "8_2": { name: "图形展示相对误差", desc: "可视化逼近。", conclusion: "随着x增大，误差逐渐减小。", attachments: ["plot_error.png"] },
+        "8_3": { name: "验证 Chebyshev 上下界的宽松程度", desc: "实际界限。", conclusion: "上下界确实成立且相对宽松。", attachments: ["chebyshev_plot.pdf"] },
+        "8_4": { name: "测试零点自由区域对误差项的影响", desc: "近似模拟。", conclusion: "区域越大，误差越小。", attachments: ["zero_free_sim.pdf"] },
+        // 次任务 9
+        "9_1": { name: "定义 Dirichlet L函数并陈述性质", desc: "推广zeta。", conclusion: "L(s,χ) 在 Re(s)>1 绝对收敛。", attachments: ["lfunction_def.pdf"] },
+        "9_2": { name: "证明 L函数在 Re(s)≥1 上无零点", desc: "除实特征外。", conclusion: "算术级数素数定理的关键。", attachments: ["lfunction_nozero.pdf"] },
+        "9_3": { name: "建立 ψ(x;q,a) 的显式公式", desc: "算术级数和。", conclusion: "类似Perron公式的表达。", attachments: ["psi_arithmetic.pdf"] },
+        "9_4": { name: "证明 π(x;q,a) ~ x/(φ(q) log x)", desc: "Dirichlet素数定理。", conclusion: "算术级数中素数分布均匀。", attachments: ["dirichlet_pnt.pdf"] },
+        // 次任务 10
+        "10_1": { name: "Riemann假设下的最优误差项", desc: "假设成立时ψ(x)=x+O(√x log² x)。", conclusion: "最优误差。", attachments: ["rh_error.pdf"] },
+        "10_2": { name: "当前无条件误差项的最佳结果", desc: "无假设下的纪录。", conclusion: "现有结果远弱于RH下的估计。", attachments: ["best_unconditional.pdf"] },
+        "10_3": { name: "零点密度猜想与误差项联系", desc: "前沿关联。", conclusion: "密度猜想可改进误差。", attachments: ["density_conjecture.pdf"] },
+        "10_4": { name: "总结素数定理在现代数论中的延伸", desc: "函数域、筛法等领域。", conclusion: "素数定理的思想已深刻影响多个分支。", attachments: ["extensions.pdf"] }
     };
-
-    // 由于实际数据库很长，这里提供一个简短的补全提示：您应当将之前“detail.html”中完整的 subtaskDatabase 对象粘贴到上面。
-    // 为方便测试，下面动态生成一个模拟数据，实际部署时务必替换。
-    (function fillDemoData() {
-        // 如果数据库只有示例条目，则补充所有子任务（防止点击404）
-        if (Object.keys(subtaskDatabase).length < 40) {
-            for (let i=1; i<=10; i++) {
-                for (let j=1; j<=4; j++) {
-                    let id = `${i}_${j}`;
-                    if (!subtaskDatabase[id]) {
-                        subtaskDatabase[id] = {
-                            name: `子任务 ${i}.${j}`,
-                            desc: "详细描述待补充（请从完整数据源复制）。",
-                            conclusion: "结论待补充。",
-                            attachments: ["example.pdf"]
-                        };
-                    }
-                }
-            }
-            // 更友好的名称覆盖（可选）
-            const nameMap = {
-                "1_1":"证明 ϑ(x) = O(x)", "1_2":"证明 ψ(x) = ϑ(x) + O(√x)", "1_3":"建立上下界 c₁x ≤ ψ(x) ≤ c₂x", "1_4":"导出 π(x) = Ω(x/log x) 和 π(x) = O(x/log x)",
-                // 可根据需要继续添加，但为了简洁，此处不一一列出，用户应自行完善
-            };
-            for (let [id, name] of Object.entries(nameMap)) {
-                if (subtaskDatabase[id]) subtaskDatabase[id].name = name;
-            }
-        }
-    })();
 
     // 获取URL参数
     function getParam(name) {
@@ -276,9 +268,7 @@
             <div class="section">
                 <h3>📎 固定附件链接</h3>
                 <div class="attachment-box">
-                    <ul class="attachment-list">
-                        ${attchLinks}
-                    </ul>
+                    <ul class="attachment-list">${attchLinks}</ul>
                     <p style="font-size:0.8rem; margin-top:0.8rem;">⚠️ 附件存放在 <code>attachments/</code> 目录下，请确保文件已上传。</p>
                 </div>
             </div>
@@ -289,25 +279,16 @@
     // ========== 上传记录（本地存储） ==========
     let uploadRecords = [];
 
-    // 加载已存储的上传记录
     function loadUploadRecords() {
         const stored = localStorage.getItem(`uploads_${taskId || 'default'}`);
-        if (stored) {
-            uploadRecords = JSON.parse(stored);
-        } else {
-            uploadRecords = [];
-        }
+        uploadRecords = stored ? JSON.parse(stored) : [];
         renderUploadRecords();
     }
 
-    // 添加新记录
     function addUploadRecord() {
         const link = document.getElementById('newUploadLink').value.trim();
         const name = document.getElementById('newUploadName').value.trim() || '未命名附件';
-        if (!link) {
-            alert('请填写文件链接');
-            return;
-        }
+        if (!link) { alert('请填写文件链接'); return; }
         uploadRecords.push({ link, name, time: new Date().toLocaleString() });
         localStorage.setItem(`uploads_${taskId || 'default'}`, JSON.stringify(uploadRecords));
         document.getElementById('newUploadLink').value = '';
@@ -315,14 +296,12 @@
         renderUploadRecords();
     }
 
-    // 删除记录
     function deleteUploadRecord(index) {
         uploadRecords.splice(index, 1);
         localStorage.setItem(`uploads_${taskId || 'default'}`, JSON.stringify(uploadRecords));
         renderUploadRecords();
     }
 
-    // 渲染列表
     function renderUploadRecords() {
         const listEl = document.getElementById('uploadRecordList');
         if (!listEl) return;
@@ -339,27 +318,22 @@
         `).join('');
     }
 
-    // 初始化上传记录模块（仅在页面加载后执行）
+    // 初始化
     if (document.getElementById('uploadRecordList')) {
         loadUploadRecords();
-        // 将函数暴露到全局，供按钮调用
         window.addUploadRecord = addUploadRecord;
         window.deleteUploadRecord = deleteUploadRecord;
     }
+</script>
 
-    // Giscus 配置注意事项：由于评论板块依赖于 GitHub 仓库设置，用户需要手动替换 data-repo 等属性。
-    // 我们已经在 head 中加载了 Giscus 脚本，但需要用户填写正确的仓库信息。如果没有配置，会提示错误。
-    // 为了用户体验，可以在控制台给出友好提示。
-    const giscusScript = document.querySelector('script[src="https://giscus.app/client.js"]');
-    if (giscusScript && (giscusScript.getAttribute('data-repo') === '[请替换为你的GitHub用户名/仓库名]' || !giscusScript.getAttribute('data-repo'))) {
-        console.warn('⚠️ 请配置 Giscus 评论系统：替换 data-repo、data-repo-id、data-category、data-category-id 为你的 GitHub 仓库信息。若不使用，可删除相关代码。');
-        document.getElementById('giscus-comments').innerHTML = '<p style="color:#b85c5c;">💡 留言功能需要配置 GitHub 仓库。请联系站点管理员设置 Giscus。</p>';
-    } else {
-        // 正常显示，Giscus 会自动加载
-        if (document.getElementById('giscus-comments')) {
-            // 无需额外操作
-        }
-    }
+<!-- Utterances 评论脚本：放在 body 末尾确保容器已存在 -->
+<script src="https://utteranc.es/client.js"
+        repo="caojun1860/Workflow-temple"
+        issue-term="pathname"
+        label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
 </script>
 </body>
 </html>
