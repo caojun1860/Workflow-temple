@@ -1,0 +1,37 @@
+# AI 使用记录
+
+本文件记录了在“素数定理证明”项目中与AI协作的10次主要交互。所有相关的附件（不超过10个）已打包上传，链接见文末。
+
+| 序号 | 时间 | 主题 | AI贡献 | 对话链接 |
+| :---: | :--- | :--- | :--- | :--- |
+| 1 | 2025-06-01 | 分解主定理为子任务 | AI建议将素数定理的证明分解为10个主要模块，并协助生成子任务清单。 | [对话1](https://chat.openai.com/share/xxxxx1) |
+| 2 | 2025-06-02 | 撰写Chebyshev估计的Lean代码 | 根据自然语言描述生成`chebyshev.lean`骨架，并自动补全局部引理。 | [对话2](https://chat.openai.com/share/xxxxx2) |
+| 3 | 2025-06-03 | 解析延拓ζ函数的形式化 | AI提供使用Mathlib中`complex.analytic`的代码示例，帮助完成`zeta_analytic.lean`。 | [对话3](https://chat.openai.com/share/xxxxx3) |
+| 4 | 2025-06-04 | 生成Perron公式的误差项估计 | AI辅助推导积分围道的截断误差，并输出LaTeX证明片段。 | [对话4](https://chat.openai.com/share/xxxxx4) |
+| 5 | 2025-06-05 | 绘制零点自由区域示意图 | AI根据零点自由区域的数学描述，生成Python绘图脚本（保存为`zero_free_region.png`）。 | [对话5](https://chat.openai.com/share/xxxxx5) |
+| 6 | 2025-06-06 | 编写数值验证代码 | AI生成计算π(x)与x/log x比值并绘制相对误差图的Python脚本。 | [对话6](https://chat.openai.com/share/xxxxx6) |
+| 7 | 2025-06-07 | 解释Selberg筛法与初等证明 | AI用通俗语言总结Erdős–Selberg初等证明的核心步骤，并生成对比表格。 | [对话7](https://chat.openai.com/share/xxxxx7) |
+| 8 | 2025-06-08 | 生成研究项目依赖图 | AI从现有的`blueprint.md`解析出Mermaid格式的依赖图，保存为`dependency_graph.mmd`。 | [对话8](https://chat.openai.com/share/xxxxx8) |
+| 9 | 2025-06-09 | 指导学生理解误差项改进 | AI针对Walfisz估计设计了一套分层提问的教学提示。 | [对话9](https://chat.openai.com/share/xxxxx9) |
+| 10 | 2025-06-10 | 撰写算术级数素数定理的推广 | AI协助完成Dirichlet L函数性质的形式化陈述及渐近式的推导。 | [对话10](https://chat.openai.com/share/xxxxx10) |
+
+---
+
+## 📎 统一附件上传链接
+
+> 所有附件（不超过10个）已打包为 `ai_contributions.zip`，点击下方链接下载。  
+> 压缩包内包含以下文件：
+> 1. `blueprint.pdf` – 任务分解蓝图
+> 2. `chebyshev.lean` – Chebyshev估计的Lean代码
+> 3. `zeta_analytic.lean` – ζ函数解析延拓的形式化
+> 4. `perron_error.tex` – Perron公式误差估计的LaTeX推导
+> 5. `zero_free_region.png` – 零点自由区域示意图
+> 6. `numerical_plot.py` – 数值验证与绘图脚本
+> 7. `selberg_notes.md` – 初等证明要点笔记
+> 8. `dependency_graph.mmd` – 项目依赖图
+> 9. `teaching_prompts.pdf` – 教学提问指南
+> 10. `dirichlet_prime.lean` – 算术级数素数定理的Lean形式化
+
+[⬇️ 下载附件压缩包](https://your-storage-link.com/ai_contributions.zip)
+
+> **注**：该链接为一个临时存储地址，实际使用时请替换为项目仓库或云盘的有效链接。附件总数严格控制在10个以内。
