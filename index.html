@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>素数定理证明 · 任务蓝图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #eef4ea;  /* 护眼色：柔和绿 */
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: #1e2a1e;
+            line-height: 1.5;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 页眉 */
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            background: linear-gradient(135deg, #2b5e2b, #1e3a1e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header p {
+            color: #3b5c3b;
+            margin-top: 0.5rem;
+            font-size: 1.05rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 任务区块 */
+        .task-group {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            padding: 1.8rem 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(100, 120, 80, 0.2);
+        }
+
+        .task-group h2 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #2d4a2d;
+            border-left: 5px solid #5c9e5c;
+            padding-left: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .subtasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .subtask-card {
+            background: white;
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2eeda;
+        }
+
+        .subtask-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(60, 80, 40, 0.1);
+            border-color: #bdd8ad;
+        }
+
+        .subtask-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1e3a1e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background-color: #e7f3e3;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #3b6e3b;
+        }
+
+        .subtask-desc {
+            font-size: 0.9rem;
+            color: #3a563a;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .subtask-link {
+            display: inline-block;
+            background: #eef4ea;
+            padding: 0.35rem 1rem;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #2b6e2b;
+            transition: 0.2s;
+            border: 1px solid #cce0c0;
+        }
+
+        .subtask-link:hover {
+            background: #d9e8d2;
+            color: #1f4f1f;
+            border-color: #aacb98;
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #5f7a5a;
+            background: rgba(200, 220, 185, 0.4);
+            padding: 1rem;
+            border-radius: 2rem;
+        }
+
+        hr {
+            margin: 1rem 0;
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, #d0e0c5, transparent);
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 1rem;
+            }
+            .task-group {
+                padding: 1rem;
+            }
+            .subtasks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📐 素数定理 · 解析证明蓝图</h1>
+        <p>模块化拆解 · 人机协作 · 形式化验证<br>每个子任务均为独立探究单元，点击卡片进入详情页。</p>
+    </div>
+
+    <!-- 主任务将动态生成：为了清晰，直接内嵌10个任务组（每个主任务含4子任务） -->
+    <!-- 数据定义（用于生成超链接和简短描述） -->
+    <div id="app"></div>
+    <div class="footer-note">
+        💡 每个子任务均设有独立详情页，包含任务描述、关键结论及附件下载链接。<br>
+        🌿 本项目遵循陶哲轩“新数学工作流”理念 — 拆解 → 分配 → 验证 → 消化 → 沉淀
+    </div>
+</div>
+
+<script>
+    // 任务数据：10个主任务，每个包含4个子任务
+    const tasksData = [
+        {
+            title: "1. Chebyshev 估计的初等推导",
+            subtasks: [
+                { id: "1_1", name: "证明 ϑ(x) = O(x)", desc: "导出切比雪夫函数ϑ(x)的上界，奠定素数分布初等基础。" },
+                { id: "1_2", name: "证明 ψ(x) = ϑ(x) + O(√x)", desc: "联系Chebyshev函数ψ和ϑ，建立二阶误差。" },
+                { id: "1_3", name: "建立上下界 c₁x ≤ ψ(x) ≤ c₂x", desc: "给出素数计数的线性上下界。" },
+                { id: "1_4", name: "导出 π(x) = Ω(x/log x) 和 π(x) = O(x/log x)", desc: "素数定理的第一次粗略逼近。" }
+            ]
+        },
+        {
+            title: "2. Dirichlet级数与Riemann zeta函数的基本性质",
+            subtasks: [
+                { id: "2_1", name: "定义 ζ(s) 并证明绝对收敛", desc: "在Re(s)>1上定义zeta函数，证明一致收敛。" },
+                { id: "2_2", name: "证明 Euler 乘积公式", desc: "揭示素数乘积与级数关联。" },
+                { id: "2_3", name: "解析延拓到 Re(s)>0 并陈述函数方程", desc: "将zeta函数延拓到临界带。" },
+                { id: "2_4", name: "证明 s=1 处一阶极点留数为1", desc: "提取主项来源。" }
+            ]
+        },
+        {
+            title: "3. Perron 型公式的建立",
+            subtasks: [
+                { id: "3_1", name: "定义 Von Mangoldt 函数 Λ(n) 及 ψ(x)", desc: "将素数计数转化为ψ(x)。" },
+                { id: "3_2", name: "证明 -ζ'(s)/ζ(s) = Σ Λ(n)/n^s", desc: "Dirichlet级数与对数导数联系。" },
+                { id: "3_3", name: "应用 Perron 公式表达 ψ(x)", desc: "积分表示定理。" },
+                { id: "3_4", name: "截断积分并给出误差项估计", desc: "控制无穷积分误差。" }
+            ]
+        },
+        {
+            title: "4. 零点自由区域 (没有非平凡零点在 Re(s)≥1)",
+            subtasks: [
+                { id: "4_1", name: "证明 ζ(s) ≠ 0 对 Re(s) ≥ 1", desc: "无零点线（古典结果）。" },
+                { id: "4_2", name: "更精细的零点自由区域", desc: "Vinogradov–Korobov型区域。" },
+                { id: "4_3", name: "导出 -ζ'(s)/ζ(s) 的解析控制", desc: "在带形区域估计对数导数。" },
+                { id: "4_4", name: "积分误差得到 ψ(x) = x + O(x e^{-c√log x})", desc: "第一个非平凡误差项。" }
+            ]
+        },
+        {
+            title: "5. 主项提取与误差项控制",
+            subtasks: [
+                { id: "5_1", name: "积分路径左移至 Re(s)=1-δ(x)", desc: "移动围道避开极点。" },
+                { id: "5_2", name: "计算 s=1 处留数贡献 x", desc: "主项来源。" },
+                { id: "5_3", name: "估计水平和垂直积分界", desc: "控制剩余部分。" },
+                { id: "5_4", name: "从 ψ(x) 导出 π(x) 渐近式", desc: "通过分部求和完成素数定理。" }
+            ]
+        },
+        {
+            title: "6. 误差项的初等改进 (Walfisz型估计)",
+            subtasks: [
+                { id: "6_1", name: "引入更精细的零点自由区域", desc: "改进区域形状。" },
+                { id: "6_2", name: "证明 ψ(x) = x + O(x exp(-c (log x)^{3/5}/(log log x)^{1/5}))", desc: "Walfisz误差。" },
+                { id: "6_3", name: "得到相应的素数定理误差项", desc: "误差传递到π(x)。" },
+                { id: "6_4", name: "对比不同误差阶的历史结果", desc: "总结已知最优估计。" }
+            ]
+        },
+        {
+            title: "7. 元素法（初等证明）的概要",
+            subtasks: [
+                { id: "7_1", name: "引入 Selberg 公式", desc: "初等核心恒等式。" },
+                { id: "7_2", name: "推导 ΣΛ(n)log n = x log x - x + O(log x)", desc: "加权和。" },
+                { id: "7_3", name: "利用 Selberg 公式得到 ψ(x) = x + o(x)", desc: "完成初等证明。" },
+                { id: "7_4", name: "总结初等证明与解析证明的异同", desc: "方法论比较。" }
+            ]
+        },
+        {
+            title: "8. 数值验证与计算实例",
+            subtasks: [
+                { id: "8_1", name: "编写代码计算 π(x) 与 x/log x 的比值", desc: "实证检验。" },
+                { id: "8_2", name: "图形展示相对误差", desc: "可视化逼近。" },
+                { id: "8_3", name: "验证 Chebyshev 上下界的宽松程度", desc: "实际界限。" },
+                { id: "8_4", name: "测试零点自由区域对误差项的影响", desc: "近似模拟。" }
+            ]
+        },
+        {
+            title: "9. 算术级数中的素数定理 (Dirichlet型)",
+            subtasks: [
+                { id: "9_1", name: "定义 Dirichlet L函数并陈述性质", desc: "推广zeta。" },
+                { id: "9_2", name: "证明 L函数在 Re(s)≥1 上无零点", desc: "除实特征外。" },
+                { id: "9_3", name: "建立 ψ(x;q,a) 的显式公式", desc: "算术级数和。" },
+                { id: "9_4", name: "证明 π(x;q,a) ~ x/(φ(q) log x)", desc: "Dirichlet素数定理。" }
+            ]
+        },
+        {
+            title: "10. 现代发展——误差项与零点密度猜想",
+            subtasks: [
+                { id: "10_1", name: "Riemann假设下的最优误差项", desc: "假设成立时ψ(x)=x+O(√x log² x)。" },
+                { id: "10_2", name: "当前无条件误差项的最佳结果", desc: "无假设下的纪录。" },
+                { id: "10_3", name: "零点密度猜想与误差项联系", desc: "前沿关联。" },
+                { id: "10_4", name: "总结素数定理在现代数论中的延伸", desc: "函数域、筛法等领域。" }
+            ]
+        }
+    ];
+
+    const container = document.getElementById('app');
+    tasksData.forEach(task => {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'task-group';
+        groupDiv.innerHTML = `<h2>${task.title}</h2><div class="subtasks-grid"></div>`;
+        const grid = groupDiv.querySelector('.subtasks-grid');
+        task.subtasks.forEach(sub => {
+            const card = document.createElement('div');
+            card.className = 'subtask-card';
+            card.innerHTML = `
+                <div class="subtask-title">
+                    <span>📌 ${sub.name}</span>
+                    <span class="badge">子任务 ${sub.id.replace('_','.')}</span>
+                </div>
+                <div class="subtask-desc">${sub.desc}</div>
+                <a class="subtask-link" href="detail.html?id=${sub.id}" target="_blank">📖 查看详情 →</a>
+            `;
+            grid.appendChild(card);
+        });
+        container.appendChild(groupDiv);
+    });
+</script>
+</body>
+</html>
